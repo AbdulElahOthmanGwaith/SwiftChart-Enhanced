@@ -1,0 +1,49 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 'latest'
+
+      - name: Build Example Project
+        run: |
+          cd Example
+          xcodebuild build -scheme SwiftChart-Example -destination 'platform=iOS Simulator,name=iPhone 15'
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Assuming the project has a web component or documentation to deploy
+          # If it's just the Swift code, we might need to generate documentation first
+          path: '.'
+
+  deploy:
+    environment:
+      name: github-pages
+      url: https://abdulelahothmangwaith.github.io/teleco
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
